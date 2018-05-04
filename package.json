@@ -1,0 +1,18 @@
+{
+  "name": "zipkin-d3-deps",
+  "version": "0.0.1",
+  "description": "wip/alpha",
+  "scripts": {
+    "test": "node_modules/.bin/mocha ./test/**/*-test.js"
+  },
+  "author": "Steve Conover",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.1.1",
+    "browserify": "16.2.0"
+  },
+  "dependencies": {
+    "d3": "^5.1.0"
+  }
+}
