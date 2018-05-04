@@ -7,7 +7,9 @@ console.log("hello world 6", zipkinBaseUrl)
 fetch(`${zipkinBaseUrl}/api/v1/dependencies?endTs=1525428438433&lookback=86399999`, {
   method: 'get'
 }).then(function(response) {
-  console.log(response)
+  response.json().then((obj) => {
+    console.log(obj)
+  })
 }).catch(function(err) {
   console.log(err)
 });

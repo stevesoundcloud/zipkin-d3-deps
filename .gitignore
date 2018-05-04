@@ -3,3 +3,4 @@
 node_modules/
 .DS_Store
 target/
+static/bundle.js
