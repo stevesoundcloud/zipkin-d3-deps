@@ -30,50 +30,117 @@ function zipkinDepsToD3Graph(zipkinDependencyResponse) {
 }
 
 function buildVisualization(d3GraphData) {
+  var svg = d3.select("svg");
 
-  var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
+  var width = svg.attr("width");
+  var height = svg.attr("height");
+
+  svg = svg.call(d3.zoom().on("zoom", zoomed)).append("g");
+
+  svg.append("defs").append("marker")
+    .attr("id", "arrow")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 20)
+    .attr("refY", 0)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 8)
+    .attr("orient", "auto")
+    .append("svg:path")
+    .attr("d", "M0,-5L10,0L0,5");
+
+  var color = d3.scaleOrdinal(d3.schemeCategory10);
 
   var simulation = d3.forceSimulation()
-    .force("charge", d3.forceManyBody().strength(-300))
-    .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(30))
-    .force("x", d3.forceX(width / 2))
-    .force("y", d3.forceY(height / 2))
+    .force("link", d3.forceLink().id(function(d) { return d.id; }))
+    .force("charge", d3.forceManyBody().strength(-1000).distanceMax(400).distanceMin(10))
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+  var link = svg.append("g")
+    .attr("class", "links")
+    .selectAll("line")
+    .data(d3GraphData.links)
+    .enter().append("line")
+    .attr("stroke", function(d) { return color(d.type); })
+    .attr("marker-end", "url(#arrow)");
+
+
+  var node = svg.append("g")
+    .attr("class", "nodes")
+    .selectAll("circle")
+    .data(d3GraphData.nodes)
+    .enter().append("circle")
+    .attr("r", 10)
+    .attr("fill", function(d) { if (d.root == "true") return color(d.root); return color(d.type); })
+    .call(d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended));
+
+  var text = svg.append("g").attr("class", "labels").selectAll("g")
+    .data(d3GraphData.nodes)
+    .enter().append("g");
+
+  text.append("text")
+    .attr("x", 14)
+    .attr("y", ".31em")
+    .style("font-family", "sans-serif")
+    .style("font-size", "0.7em")
+    .text(function(d) { return d.id; });
+
+  node.on("click",function(d){
+    console.log("clicked", d.id);
+  });
+
+
+  node.append("title")
+    .text(function(d) { return d.id; });
+
+  simulation
+    .nodes(d3GraphData.nodes)
     .on("tick", ticked);
 
-  var link = svg.selectAll(".link"),
-    node = svg.selectAll(".node");
+  simulation.force("link")
+    .links(d3GraphData.links);
 
-  // d3.json("graph.json", function(error, graph) {
-  //   if (error) throw error;
-
-    simulation.nodes(d3GraphData.nodes);
-    simulation.force("link").links(d3GraphData.links);
-
-    link = link
-      .data(d3GraphData.links)
-      .enter().append("line")
-      .attr("class", "link");
-
-    node = node
-      .data(d3GraphData.nodes)
-      .enter().append("circle")
-      .attr("class", "node")
-      .attr("r", 6)
-      .style("fill", function(d) { return d.id; });
-  // });
 
   function ticked() {
-    link.attr("x1", function(d) { return d.source.x; })
+    link
+      .attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
 
-    node.attr("cx", function(d) { return d.x; })
+    node
+      .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; });
+
+    text
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+
+
   }
 
+
+  function dragstarted(d) {
+    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  function dragged(d) {
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+  }
+
+  function dragended(d) {
+    if (!d3.event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }
+
+  function zoomed() {
+    svg.attr("transform", "translate(" + d3.event.transform.x + "," + d3.event.transform.y + ")" + " scale(" + d3.event.transform.k + ")");
+  }
 }
 
 fetch(`${zipkinBaseUrl}/api/v1/dependencies?endTs=1525428438433&lookback=86399999`, {
