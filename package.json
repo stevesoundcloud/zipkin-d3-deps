@@ -3,14 +3,18 @@
   "version": "0.0.1",
   "description": "wip/alpha",
   "scripts": {
-    "test": "node_modules/.bin/mocha ./test/**/*-test.js"
+    "test": "node_modules/.bin/mocha ./test/**/*-test.js",
+    "server": "live-server --watch=dev,static --open=dev/index.html",
+    "watchify": "watchify src/index.js -o static/bundle.js"
   },
   "author": "Steve Conover",
   "license": "Apache-2.0",
   "devDependencies": {
     "chai": "^4.1.2",
     "mocha": "^5.1.1",
-    "browserify": "16.2.0"
+    "browserify": "16.2.0",
+    "watchify": "3.11.0",
+    "live-server": "1.2.0"
   },
   "dependencies": {
     "d3": "^5.1.0"
