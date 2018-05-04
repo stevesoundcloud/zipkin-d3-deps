@@ -4,8 +4,8 @@
   "description": "wip/alpha",
   "scripts": {
     "test": "node_modules/.bin/mocha ./test/**/*-test.js",
-    "server": "live-server --watch=dev,static --open=dev/index.html",
-    "watchify": "watchify src/index.js -o static/bundle.js"
+    "watchify": "watchify src/index.js -t envify -o static/bundle.js",
+    "server": "live-server --cors --watch=dev,static --open=dev/index.html --proxy=/api:${ZIPKIN_BASE_URL}/api"
   },
   "author": "Steve Conover",
   "license": "Apache-2.0",
@@ -14,7 +14,8 @@
     "mocha": "^5.1.1",
     "browserify": "16.2.0",
     "watchify": "3.11.0",
-    "live-server": "1.2.0"
+    "live-server": "1.2.0",
+    "envify": "4.1.0"
   },
   "dependencies": {
     "d3": "^5.1.0"
