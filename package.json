@@ -5,7 +5,7 @@
   "scripts": {
     "test": "node_modules/.bin/mocha ./test/**/*-test.js",
     "watchify": "watchify src/index.js -v --debug -t envify -o static/bundle.js",
-    "server": "live-server --cors --watch=dev,static --open=dev/index.html --proxy=/api:${ZIPKIN_BASE_URL}/api"
+    "server": "live-server --cors --watch=dev,static --open=dev/index.html"
   },
   "author": "Steve Conover",
   "license": "Apache-2.0",

@@ -52,7 +52,7 @@ function zipkinDepsToD3Matrix(zipkinDependencyResponse) {
     xChildByYParentMatrix.push([].concat(rowOfZeroes))
   }
   zipkinDependencyResponse.map(parentChildRow => {
-    xChildByYParentMatrix[nameToIndex[parentChildRow.child]][nameToIndex[parentChildRow.parent]] = parentChildRow.callCount
+    xChildByYParentMatrix[nameToIndex[parentChildRow.child]][nameToIndex[parentChildRow.parent]] = Math.pow(parentChildRow.callCount, 0.4)
   })
   return {
     nameToIndex: nameToIndex,
@@ -62,12 +62,6 @@ function zipkinDepsToD3Matrix(zipkinDependencyResponse) {
 }
 
 function buildVisualization(d3MatrixData) {
-  var matrix = [
-    [11975,  5871, 8916, 2868],
-    [ 1951, 10048, 2060, 6171],
-    [ 8010, 16145, 8090, 8045],
-    [ 1013,   990,  940, 6907]
-  ];
   var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height"),
@@ -159,7 +153,9 @@ function buildVisualization(d3MatrixData) {
 //   }
 }
 
-fetch(`${zipkinBaseUrl}/api/v1/dependencies?endTs=1525428438433&lookback=86399999`, {
+const nowMillis = Date.now()
+
+fetch(`${zipkinBaseUrl}/api/v1/dependencies?endTs=${nowMillis}&lookback=0`, {
   method: 'get'
 }).then(function(response) {
   response.json().then((obj) => {
